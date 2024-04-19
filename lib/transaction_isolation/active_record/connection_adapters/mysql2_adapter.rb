@@ -35,7 +35,7 @@ if defined?( ActiveRecord::ConnectionAdapters::Mysql2Adapter )
           end
           
           def current_vendor_isolation_level
-            select_value( "SELECT @@session.tx_isolation" ).gsub( '-', ' ' )
+            select_value( "SELECT @@session.transaction_isolation" ).gsub( '-', ' ' )
           end
           
           def isolation_level( level )
@@ -52,11 +52,11 @@ if defined?( ActiveRecord::ConnectionAdapters::Mysql2Adapter )
             end if block_given?
           end
 
-          def translate_exception_with_transaction_isolation_conflict( exception, message )
+          def translate_exception_with_transaction_isolation_conflict( exception, message:, sql:, binds: )
             if isolation_conflict?( exception )
               ::ActiveRecord::TransactionIsolationConflict.new( "Transaction isolation conflict detected: #{exception.message}" )
             else
-              translate_exception_without_transaction_isolation_conflict( exception, message )
+              translate_exception_without_transaction_isolation_conflict( exception, message: message, sql: sql, binds: binds)
             end
           end
           
