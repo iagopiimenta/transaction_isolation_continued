@@ -1,6 +1,7 @@
 *.gem
 .bundle
 Gemfile.lock
+Gemfile.local
 pkg/*
 .idea
 test/log/*.log

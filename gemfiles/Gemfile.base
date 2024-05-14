@@ -1,0 +1,6 @@
+source 'https://rubygems.org'
+gemspec path: File.expand_path('..', __FILE__)
+
+gem 'ruby2_keywords' if RUBY_VERSION < '2.7'
+
+File.exist?(gemfile_local = File.expand_path('../Gemfile.local', __FILE__)) and eval File.read(gemfile_local), binding, gemfile_local
