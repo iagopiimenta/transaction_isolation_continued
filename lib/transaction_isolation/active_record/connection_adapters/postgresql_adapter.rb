@@ -11,11 +11,11 @@ if defined?( ActiveRecord::ConnectionAdapters::PostgreSQLAdapter )
               alias_method :translate_exception, :translate_exception_with_transaction_isolation_conflict
             end
           end
-                    
+
           def supports_isolation_levels?
             true
           end
-          
+
           VENDOR_ISOLATION_LEVEL = {
               :read_uncommitted => 'READ UNCOMMITTED',
               :read_committed => 'READ COMMITTED',
@@ -29,7 +29,7 @@ if defined?( ActiveRecord::ConnectionAdapters::PostgreSQLAdapter )
               'REPEATABLE READ' => :repeatable_read,
               'SERIALIZABLE' => :serializable
           }
-          
+
           def current_isolation_level
             ANSI_ISOLATION_LEVEL[current_vendor_isolation_level]
           end
@@ -42,9 +42,9 @@ if defined?( ActiveRecord::ConnectionAdapters::PostgreSQLAdapter )
             validate_isolation_level( level )
 
             original_vendor_isolation_level = current_vendor_isolation_level if block_given?
-            
+
             execute "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL #{VENDOR_ISOLATION_LEVEL[level]}"
-            
+
             begin
               yield
             ensure
@@ -52,14 +52,18 @@ if defined?( ActiveRecord::ConnectionAdapters::PostgreSQLAdapter )
             end if block_given?
           end
 
-          def translate_exception_with_transaction_isolation_conflict( exception, message:, sql:, binds: )
-            if isolation_conflict?( exception )
-              ::ActiveRecord::TransactionIsolationConflict.new( "Transaction isolation conflict detected: #{exception.message}" )
+          def translate_exception_with_transaction_isolation_conflict(*args)
+            exception = args.first
+
+            if isolation_conflict?(exception)
+              ::ActiveRecord::TransactionIsolationConflict.new("Transaction isolation conflict detected: #{exception.message}")
             else
-              translate_exception_without_transaction_isolation_conflict( exception, message: message, sql: sql, binds: binds )
+              translate_exception_without_transaction_isolation_conflict(*args)
             end
           end
-          
+
+          ruby2_keywords :translate_exception_with_transaction_isolation_conflict if respond_to?(:ruby2_keywords, true)
+
           def isolation_conflict?( exception )
             [ "deadlock detected",
               "could not serialize access" ].any? do |error_message|

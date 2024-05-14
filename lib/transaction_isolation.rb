@@ -1,5 +1,6 @@
 require "active_record"
 require_relative 'transaction_isolation/version'
+require_relative 'transaction_isolation/configuration'
 
 module TransactionIsolation
 
@@ -15,13 +16,36 @@ module TransactionIsolation
     require_relative 'transaction_isolation/active_record/connection_adapters/sqlite3_adapter'
   end
 
+  def self.configuration
+    @configuration ||= Configuration.new
+  end
+
+  def self.configure
+    config = configuration
+    yield(config)
+  end
+
+  def self.config
+    config = configuration
+    yield(config) if block_given?
+    config
+  end
+
   if defined?( ::Rails )
     # Setup applying the patch after Rails is initialized.
     class Railtie < ::Rails::Railtie
       config.after_initialize do
+        if ActiveRecord::Base.connection.adapter_name == 'Mysql2' && TransactionIsolation.config.detect_mysql_isolation_variable
+          mysql_version = ActiveRecord::Base.connection.select_value('SELECT version()')
+          if mysql_version >= '8'
+            TransactionIsolation.config.mysql_isolation_variable = 'transaction_isolation'
+          else
+            TransactionIsolation.config.mysql_isolation_variable = 'tx_isolation'
+          end
+        end
         TransactionIsolation.apply_activerecord_patch
       end
     end
   end
-  
+
 end
