@@ -23,7 +23,7 @@ end
 ## Requirements
 
 - Rails: ActiveRecord 5.2+.
-- Database: MySQL, PostgreSQL, SQLite.
+- Database: MySQL(compatible with mysql 5 and 8), PostgreSQL, SQLite.
 - Ruby: MRI 2.5+.
 
 ## Installation
