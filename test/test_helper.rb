@@ -1,10 +1,11 @@
-# Load test coverage tool (must be loaded before any code)
+# frozen_string_literal: true
+
 require 'simplecov'
-require "simplecov_json_formatter"
+require 'simplecov_json_formatter'
 SimpleCov.formatter = SimpleCov::Formatter::JSONFormatter
 
 SimpleCov.start do
- add_filter '/test/'
+  add_filter '/test/'
 end
 
 # Load and initialize the application to be tested

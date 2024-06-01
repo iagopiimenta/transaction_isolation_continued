@@ -1,9 +1,10 @@
-require "active_record"
+# frozen_string_literal: true
+
+require 'active_record'
 require_relative 'transaction_isolation/version'
 require_relative 'transaction_isolation/configuration'
 
 module TransactionIsolation
-
   # Must be called after ActiveRecord established a connection.
   # Only then we know which connection adapter is actually loaded and can be enhanced.
   # Please note ActiveRecord does not load unused adapters.
@@ -31,21 +32,20 @@ module TransactionIsolation
     config
   end
 
-  if defined?( ::Rails )
+  if defined?(::Rails)
     # Setup applying the patch after Rails is initialized.
     class Railtie < ::Rails::Railtie
       config.after_initialize do
         if ActiveRecord::Base.connection.adapter_name == 'Mysql2' && TransactionIsolation.config.detect_mysql_isolation_variable
           mysql_version = ActiveRecord::Base.connection.select_value('SELECT version()')
-          if mysql_version >= '8'
-            TransactionIsolation.config.mysql_isolation_variable = 'transaction_isolation'
-          else
-            TransactionIsolation.config.mysql_isolation_variable = 'tx_isolation'
-          end
+          TransactionIsolation.config.mysql_isolation_variable = if mysql_version >= '8'
+                                                                   'transaction_isolation'
+                                                                 else
+                                                                   'tx_isolation'
+                                                                 end
         end
         TransactionIsolation.apply_activerecord_patch
       end
     end
   end
-
 end
