@@ -110,6 +110,11 @@ jobs:
           bundler-cache: true
       - name: Run bundle update
         run: bundle update
+      - name: Setup Code Climate test-reporter
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
       - name: Start Mysql
         if: matrix.db == 'mysql2'
         run: |
@@ -145,27 +150,13 @@ jobs:
             echo $(( COUNT++ )) > /dev/null
             sleep 2
           done
-      - name: test
-        run: echo $BUNDLE_GEMFILE
       - name: Run tests
         run: db=${{ matrix.db }} bundle exec rake test
       - name: Shutdown database
         if: always() && (matrix.db == 'postgresql' || matrix.db == 'mysql2')
         run: docker stop database
-#      - name: Coveralls Parallel
-#        if: "${{ !env.ACT }}"
-#        uses: coverallsapp/github-action@master
-#        with:
-#          github-token: "${{ secrets.GITHUB_TOKEN }}"
-#          flag-name: run-${{ matrix.ruby }}-${{ matrix.activerecord }}-${{ matrix.db }}-${{ matrix.dbversion }}
-#          parallel: true
-#  finish:
-#    needs: test
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Coveralls Finished
-#        if: "${{ !env.ACT }}"
-#        uses: coverallsapp/github-action@master
-#        with:
-#          github-token: "${{ secrets.GITHUB_TOKEN }}"
-#          parallel-finished: true
+      - name: Publish code coverage
+        if: github.ref_name == 'main'
+        run: |
+          export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
+          ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}
