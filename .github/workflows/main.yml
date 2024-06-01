@@ -156,7 +156,6 @@ jobs:
         if: always() && (matrix.db == 'postgresql' || matrix.db == 'mysql2')
         run: docker stop database
       - name: Publish code coverage
-        if: github.ref_name == 'main'
         run: |
           export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
           ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}
