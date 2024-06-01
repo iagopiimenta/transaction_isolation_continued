@@ -1,5 +1,6 @@
-NO LONGER MAINTAINED - PLEASE FORK OR SEEK OTHER SOLUTIONS
+[![Maintainability](https://api.codeclimate.com/v1/badges/01a5d17010b32f041ac3/maintainability)](https://codeclimate.com/github/iagopiimenta/transaction_isolation_continued/maintainability)
 
+[![Test Coverage](https://api.codeclimate.com/v1/badges/01a5d17010b32f041ac3/test_coverage)](https://codeclimate.com/github/iagopiimenta/transaction_isolation_continued/test_coverage)
 
 # transaction_isolation
 

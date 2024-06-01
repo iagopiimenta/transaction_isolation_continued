@@ -102,7 +102,7 @@ jobs:
       POSTGRESQL_DB_PASS: database
       POSTGRESQL_DB_NAME: transaction_isolation_continued_test
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -155,7 +155,32 @@ jobs:
       - name: Shutdown database
         if: always() && (matrix.db == 'postgresql' || matrix.db == 'mysql2')
         run: docker stop database
-      - name: Publish code coverage
+      - name: Format coverage
         run: |
-          export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
-          ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}
+          ./cc-test-reporter format-coverage -t simplecov -o coverage/cc_resultset.json
+      - name: Upload reports' artifacts
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage_artifact_ruby_${{ matrix.ruby }}_ar_${{ matrix.activerecord }}_db_${{ matrix.db }}
+          if-no-files-found: ignore
+          path: coverage
+          retention-days: 1
+  finish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Code Climate test-reporter
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+      - name: Download reports' artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: coverage_reports
+          pattern: coverage_artifact_*
+      - name: sum-coverage
+        run: |
+          ./cc-test-reporter sum-coverage coverage_reports/coverage_artifact_ruby*/cc_resultset.json -o coverage/codeclimate.json
+          ./cc-test-reporter upload-coverage -r ${{secrets.CC_TEST_REPORTER_ID}} -i coverage/codeclimate.json
