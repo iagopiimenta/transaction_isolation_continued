@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.name        = 'transaction_isolation_continued'
   s.version     = TransactionIsolation::VERSION
   s.authors     = ['Iago Pimenta']
-  s.homepage    = 'https://github.com/qertoip/transaction_isolation'
+  s.homepage    = 'https://github.com/iagopiimenta/transaction_isolation_continued'
   s.summary     = 'Set transaction isolation level in the ActiveRecord in a database agnostic way.'
   s.description = 'Set transaction isolation level in the ActiveRecord in a database agnostic way.
 Works with MySQL, PostgreSQL and SQLite as long as you are using new adapters mysql2, pg or sqlite3.

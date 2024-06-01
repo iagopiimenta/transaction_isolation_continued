@@ -3,7 +3,7 @@ eval File.read(base_gemfile), binding, base_gemfile
 
 platform :ruby do
   # https://github.com/rails/rails/pull/51592
-  gem "sqlite3", "~> 1.4"
+  gem "sqlite3", "~> 1.4.0"
 end
 
 platform :jruby do

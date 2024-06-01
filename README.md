@@ -104,15 +104,21 @@ end
 Run tests on the selected database (mysql2 by default):
 
 ```bash
-db=mysql2 bundle exec rake test
-db=postgresql bundle exec rake test
-db=sqlite3 bundle exec rake test
+# passing desired database, active record version and ruby version
+docker compose run -e db=sqlite3 -e BUNDLE_GEMFILE=gemfiles/activerecord-7.0/Gemfile.sqlite3 ruby_2_5 bash -c ./docker/test-ruby.sh
+
+# db options: mysql2, postgresql, sqlite3
+# active record version options: 5.2, 6.0, 6.1, 7.0
+# ruby version options: 2.5, 2.7, 3.0, 3.1
 ```
 
-Run tests on all supported databases:
+Run tests on all supported databases by ruby version:
 
 ```bash
-./tests
+docker compose up ruby_2_5
+docker compose up ruby_2_7
+docker compose up ruby_3_0
+docker compose up ruby_3_1
 ```
 
 Database configuration is hardcoded in test/db/db.rb; feel free to improve this and submit a pull request.

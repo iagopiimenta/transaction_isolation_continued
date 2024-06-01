@@ -2,7 +2,7 @@ base_gemfile = File.expand_path('../Gemfile.base', __FILE__)
 eval File.read(base_gemfile), binding, base_gemfile
 
 platform :ruby do
-  gem "sqlite3", "~> 1.4"
+  gem "sqlite3", "~> 1.4.0"
 end
 
 platform :jruby do
