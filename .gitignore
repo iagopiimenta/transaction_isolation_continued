@@ -5,3 +5,4 @@ Gemfile.local
 pkg/*
 .idea
 test/log/*.log
+coverage
