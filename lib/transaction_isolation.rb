@@ -36,15 +36,20 @@ module TransactionIsolation
     # Setup applying the patch after Rails is initialized.
     class Railtie < ::Rails::Railtie
       config.after_initialize do
-        if ActiveRecord::Base.connection.adapter_name == 'Mysql2' && TransactionIsolation.config.detect_mysql_isolation_variable
-          mysql_version = ActiveRecord::Base.connection.select_value('SELECT version()')
-          TransactionIsolation.config.mysql_isolation_variable = if mysql_version >= '8'
-                                                                   'transaction_isolation'
-                                                                 else
-                                                                   'tx_isolation'
-                                                                 end
+        begin
+          if TransactionIsolation.config.detect_mysql_isolation_variable && ActiveRecord::Base.connection.adapter_name == 'Mysql2'
+            mysql_version = ActiveRecord::Base.connection.select_value('SELECT version()')
+            TransactionIsolation.config.mysql_isolation_variable = if mysql_version >= '8'
+                                                                     'transaction_isolation'
+                                                                   else
+                                                                     'tx_isolation'
+                                                                   end
+          end
+
+          TransactionIsolation.apply_activerecord_patch
+        rescue ActiveRecord::NoDatabaseError
+          # This is expected when running rake db:create
         end
-        TransactionIsolation.apply_activerecord_patch
       end
     end
   end
